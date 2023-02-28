@@ -1,0 +1,361 @@
+Наприклад, якщо ми хочемо додати новий тип дороги, ми можемо створити новий клас, який реалізує інтерфейс IRoad. 
+Тоді ми можемо використати цей новий клас разом з класом Adapter, щоб підтримувати цей новий тип дороги.
+Код
+import tkinter as tk
+
+# Імпортуємо клас Adapter і інтерфейси ITransport та IRoad
+from adapter import Adapter, ITransport, IRoad
+
+
+class GameTransport(ITransport):
+    def __init__(self, name, wheels):
+        self._name = name
+        self._wheels = wheels
+
+    def get_name(self):
+        return self._name
+
+    def get_number_of_wheels(self):
+        return self._wheels
+
+
+class Road(IRoad):
+    def __init__(self, type, lanes):
+        self._type = type
+        self._lanes = lanes
+
+    def get_type(self):
+        return self._type
+
+    def get_number_of_lanes(self):
+        return self._lanes
+
+
+class GUI:
+    def __init__(self, master):
+        self.master = master
+        master.title("Adapter Example")
+
+        # Створюємо елементи інтерфейсу
+        self.transport_label = tk.Label(master, text="Game Transport")
+        self.transport_name_label = tk.Label(master, text="Name")
+        self.transport_name_entry = tk.Entry(master)
+        self.transport_wheels_label = tk.Label(master, text="Number of Wheels")
+        self.transport_wheels_entry = tk.Entry(master)
+
+        self.road_label = tk.Label(master, text="Road")
+        self.road_type_label = tk.Label(master, text="Type")
+        self.road_type_entry = tk.Entry(master)
+        self.road_lanes_label = tk.Label(master, text="Number of Lanes")
+        self.road_lanes_entry = tk.Entry(master)
+
+        self.submit_button = tk.Button(master, text="Submit", command=self.submit)
+
+        self.result_label = tk.Label(master, text="")
+
+        # Розміщуємо елементи інтерфейсу на формі
+        self.transport_label.grid(row=0, column=0)
+        self.transport_name_label.grid(row=1, column=0)
+        self.transport_name_entry.grid(row=1, column=1)
+        self.transport_wheels_label.grid(row=2, column=0)
+        self.transport_wheels_entry.grid(row=2, column=1)
+
+        self.road_label.grid(row=3, column=0)
+        self.road_type_label.grid(row=4, column=0)
+        self.road_type_entry.grid(row=4, column=1)
+        self.road_lanes_label.grid(row=5, column=0)
+        self.road_lanes_entry.grid(row=5, column=1)
+
+        self.submit_button.grid(row=6, column=0, columnspan=2)
+
+        self.result_label.grid(row=7, column=0, columnspan=2)
+
+        def submit(self):
+        # Отримуємо дані з елементів інтерфейсу
+        transport_name = self.transport_name_entry.get()
+        transport_wheels = int(self.transport_wheels_entry.get())
+        road_type = self.road_type_entry.get()
+        road_lanes = int(self.road_lanes_entry.get())
+
+        # Створюємо об'єкти GameTransport та Road
+        game_transport = GameTransport(transport_name, transport_wheels)
+        road = Road(road_type, road_lanes)
+
+        # Створюємо об'єкт Adapter і викликаємо метод can_drive_on_road
+        adapter = Adapter(game_transport)
+        result = adapter.can_drive_on_road(road)
+
+        # Виводимо результат на екран
+        if result:
+            self.result_label.config(text="The game transport can drive on the road.")
+        else:
+            self.result_label.config(text="The game transport cannot drive on the road.")
+Також ми можемо створити екземпляр об'єкту GUI і запустити його:
+root = tk.Tk()
+my_gui = GUI(root)
+root.mainloop()
+
+
+Додамо метод animate_transport(), який буде відображати зображення транспорту, яке буде рухатися відповідно до швидкості та типу дороги. Ми також створимо елемент інтерфейсу Canvas для відображення зображень.
+from PIL import Image, ImageTk
+import time
+
+class GUI:
+    def __init__(self, master):
+        self.master = master
+        master.title("Game Transport")
+
+        # Створюємо елементи інтерфейсу
+        self.transport_name_label = tk.Label(master, text="Transport name:")
+        self.transport_name_entry = tk.Entry(master)
+
+        self.transport_wheels_label = tk.Label(master, text="Number of wheels:")
+        self.transport_wheels_entry = tk.Entry(master)
+
+        self.road_type_label = tk.Label(master, text="Road type:")
+        self.road_type_entry = tk.Entry(master)
+
+        self.road_lanes_label = tk.Label(master, text="Number of lanes:")
+        self.road_lanes_entry = tk.Entry(master)
+
+        self.submit_button = tk.Button(master, text="Submit", command=self.submit)
+
+        self.result_label = tk.Label(master, text="")
+
+        self.canvas = tk.Canvas(master, width=500, height=300)
+
+        # Позиціонуємо елементи інтерфейсу на формі
+        self.transport_name_label.grid(row=0, column=0)
+        self.transport_name_entry.grid(row=0, column=1)
+
+        self.transport_wheels_label.grid(row=1, column=0)
+        self.transport_wheels_entry.grid(row=1, column=1)
+
+        self.road_type_label.grid(row=2, column=0)
+        self.road_type_entry.grid(row=2, column=1)
+
+        self.road_lanes_label.grid(row=3, column=0)
+        self.road_lanes_entry.grid(row=3, column=1)
+
+        self.submit_button.grid(row=4, column=1)
+
+        self.result_label.grid(row=5, column=0, columnspan=2)
+
+        self.canvas.grid(row=0, column=2, rowspan=6)
+
+    def animate_transport(self, transport_image_path, road_image_path, speed):
+        transport_image = Image.open(transport_image_path)
+        road_image = Image.open(road_image_path)
+
+        # Отримуємо розміри зображень
+        transport_width, transport_height = transport_image.size
+        road_width, road_height = road_image.size
+
+        # Змінюємо розміри зображень за допомогою масштабування
+        max_width, max_height = 200, 100
+        if transport_width > max_width or transport_height > max_height:
+            transport_image.thumbnail((max_width, max_height), Image.ANTIALIAS)
+
+        if road_width > max_width or road_height > max
+class SandTransportAdapter(TransportAdapter):
+    def __init__(self, transport):
+        super().__init__(transport)
+        self._transport.image = "sand_" + self._transport.image
+
+    def move(self):
+        print("Moving on sand...")
+        super().move()
+
+    def sound(self):
+        print("Making sand noises...")
+        super().sound()
+
+
+class WaterTransportAdapter(TransportAdapter):
+    def __init__(self, transport):
+        super().__init__(transport)
+        self._transport.image = "water_" + self._transport.image
+
+    def move(self):
+        print("Moving on water...")
+        super().move()
+
+    def sound(self):
+        print("Making water noises...")
+        super().sound()
+
+
+class Road:
+    def __init__(self, surface):
+        self.surface = surface
+
+
+class AsphaltRoad(Road):
+    def __init__(self):
+        super().__init__("asphalt")
+        self.image = "asphalt.jpg"
+
+    def get_image(self):
+        return self.image
+
+
+class WaterRoad(Road):
+    def __init__(self):
+        super().__init__("water")
+        self.image = "water.jpg"
+
+    def get_image(self):
+        return self.image
+
+
+class SandRoad(Road):
+    def __init__(self):
+        super().__init__("sand")
+        self.image = "sand.jpg"
+
+    def get_image(self):
+        return self.image
+
+
+class Transport:
+    def __init__(self, name, image):
+        self.name = name
+        self.image = image
+
+    def move(self):
+        print(f"{self.name} is moving.")
+
+    def sound(self):
+        print(f"{self.name} is making a sound.")
+
+
+class Car(Transport):
+    def __init__(self, name):
+        super().__init__(name, "car.jpg")
+
+
+class Boat(Transport):
+    def __init__(self, name):
+        super().__init__(name, "boat.jpg")
+
+
+class Truck(Transport):
+    def __init__(self, name):
+        super().__init__(name, "truck.jpg")
+
+
+class Application:
+    def __init__(self):
+        self.window = tk.Tk()
+        self.window.title("Transport Simulator")
+
+        self.canvas = tk.Canvas(self.window, width=600, height=400)
+        self.canvas.pack()
+
+        self.road_label = tk.Label(self.window, text="Road:")
+        self.road_label.place(x=20, y=20)
+
+        self.road_var = tk.StringVar(self.window)
+        self.road_var.set("asphalt")
+        self.road_menu = tk.OptionMenu(self.window, self.road_var, "asphalt", "water", "sand", command=self.update_road)
+        self.road_menu.place(x=80, y=20)
+
+        self.transport_label = tk.Label(self.window, text="Transport:")
+        self.transport_label.place(x=20, y=50)
+
+        self.transport_var = tk.StringVar(self.window)
+        self.transport_var.set("Car")
+        self.transport_menu = tk.OptionMenu(self.window, self.transport_var, "Car", "Boat", "Truck", command=self.update_transport)
+        self.transport_menu.place(x=80, y=50)
+
+        self.image = None
+        self.transport = None
+
+        self.update_road()
+        self.update_transport()
+
+        self.window.mainloop()
+
+    def update_road(self, *args):
+        if self.road_var.get() == "asphalt":
+            self.road = AsphaltRoad()
+        elif self.road_var.get() == "water":
+            self.road = WaterRoad()
+        elif self.road_var.get() == "sand":
+            self.road = SandRoad()
+
+        image_path = "images/" + self.road.get_image()
+        
+        
+        \\\
+        \\\\\\\\\
+import tkinter as tk
+from PIL import Image, ImageTk
+
+# Constants
+ROAD_TYPES = ["Asphalt", "Water", "Sand", "Dirt"]
+VEHICLE_TYPES = ["Car", "Boat", "Hovercraft", "Off-road vehicle"]
+ROAD_IMAGES = {
+    "Asphalt": "images/asphalt.jpg",
+    "Water": "images/water.jpg",
+    "Sand": "images/sand.jpg",
+    "Dirt": "images/dirt.jpg"
+}
+VEHICLE_IMAGES = {
+    "Car": "images/car.png",
+    "Boat": "images/boat.png",
+    "Hovercraft": "images/hovercraft.png",
+    "Off-road vehicle": "images/offroad.png"
+}
+ROAD_BEHAVIORS = {
+    "Asphalt": "Drives smoothly on the road.",
+    "Water": "Moves slowly and floats on water.",
+    "Sand": "Moves slowly on sand and can get stuck.",
+    "Dirt": "Jumps and bounces on rough terrain."
+}
+
+# Classes
+class Road:
+    def __init__(self, road_type):
+        self.type = road_type
+
+    def __str__(self):
+        return f"{self.type} road"
+
+    def get_behavior(self):
+        return ROAD_BEHAVIORS[self.type]
+
+    def get_image(self):
+        return ROAD_IMAGES[self.type]
+
+class Vehicle:
+    def __init__(self, vehicle_type):
+        self.type = vehicle_type
+
+    def __str__(self):
+        return self.type
+
+    def get_image(self):
+        return VEHICLE_IMAGES[self.type]
+
+class TransformingVehicle:
+    def __init__(self, vehicle_type):
+        self.vehicle = Vehicle(vehicle_type)
+
+    def __str__(self):
+        return f"{self.vehicle} (transforming)"
+
+    def transform(self, road_type):
+        if road_type == "Water":
+            print("Transforming to boat...")
+            self.vehicle = Boat(self.vehicle.type)
+        elif road_type == "Sand":
+            print("Transforming to hovercraft...")
+            self.vehicle = Hovercraft(self.vehicle.type)
+        elif road_type == "Dirt":
+            print("Transforming to off-road vehicle...")
+            self.vehicle = OffroadVehicle(self.vehicle.type)
+        else:
+            print("Already in car mode.")
+
+
