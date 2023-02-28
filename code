@@ -358,4 +358,113 @@ class TransformingVehicle:
         else:
             print("Already in car mode.")
 
+\\\\
+\\\\\\\\\
+# Define the different road types
+class Road:
+    def __init__(self, transport):
+        self.transport = transport
+
+    def get_road_type(self):
+        return "Generic Road"
+
+    def get_transport_info(self):
+        return self.transport.get_transport_info()
+
+class AsphaltRoad(Road):
+    def get_road_type(self):
+        return "Asphalt Road"
+
+    def get_transport_info(self):
+        return self.transport.get_transport_info() + " on asphalt road."
+
+class WaterRoad(Road):
+    def get_road_type(self):
+        return "Water Road"
+
+    def get_transport_info(self):
+        return self.transport.get_transport_info() + " on water."
+
+class SandRoad(Road):
+    def get_road_type(self):
+        return "Sand Road"
+
+    def get_transport_info(self):
+        return self.transport.get_transport_info() + " on sand."
+
+class DirtRoad(Road):
+    def get_road_type(self):
+        return "Dirt Road"
+
+    def get_transport_info(self):
+        return self.transport.get_transport_info() + " on dirt road."
+
+
+# Define the different transports
+class Transport:
+    def __init__(self):
+        self.speed = 0
+
+    def accelerate(self):
+        self.speed += 5
+
+    def brake(self):
+        self.speed -= 5
+
+    def get_transport_info(self):
+        return "Generic Transport moving at {} mph".format(self.speed)
+
+class Car(Transport):
+    def get_transport_info(self):
+        return "Car moving at {} mph".format(self.speed)
+
+class Boat(Transport):
+    def get_transport_info(self):
+        return "Boat moving at {} mph".format(self.speed)
+
+class Motorcycle(Transport):
+    def get_transport_info(self):
+        return "Motorcycle moving at {} mph".format(self.speed)
+
+class Bicycle(Transport):
+    def get_transport_info(self):
+        return "Bicycle moving at {} mph".format(self.speed)
+
+
+# Main application window
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Transport Simulator")
+
+        # Create a label for the road type
+        self.road_type_label = tk.Label(self, text="Road Type: ")
+        self.road_type_label.pack()
+
+        # Create a label for the transport information
+        self.transport_info_label = tk.Label(self, text="Transport Information: ")
+        self.transport_info_label.pack()
+
+        # Create buttons for controlling the transport
+        self.accelerate_button = tk.Button(self, text="Accelerate", command=self.accelerate_transport)
+        self.accelerate_button.pack(side="left")
+
+        self.brake_button = tk.Button(self, text="Brake", command=self.brake_transport)
+        self.brake_button.pack(side="left")
+
+        # Create a menu for selecting the road type
+        self.road_type_options = ["Asphalt", "Water", "Sand", "Dirt"]
+        self.road_type_var = tk.StringVar()
+        self.road_type_var.set(self.road_type_options[0])
+        self.road_type_menu = tk.OptionMenu(self, self.road_type_var, *self.road_type_options, command=self.change_road_type)
+        self.road_type_menu.pack()
+
+        # Create a menu for selecting the transport
+        self.transport_options = ["Car", "Boat", "Motorcycle", "Bicycle"]
+        self.transport_var = tk.StringVar()
+        self.transport_var.set(self.transport_options[0])
+        self.transport_menu = tk.OptionMenu(self, self.transport_var, *self.transport_options, command=self.change_transport)
+        self.transport_menu.pack()
+\\\\\\\\\
+\\\\
 
